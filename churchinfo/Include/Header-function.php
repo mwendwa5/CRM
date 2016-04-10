@@ -78,73 +78,13 @@ function Header_body_scripts()
   checkAllowedURL();
   ?>
 
-  <script type="text/javascript" src="<?= $sRootPath ?>/Include/jscalendar/calendar.js"></script>
-  <script type="text/javascript" src="<?= $sRootPath ?>/Include/jscalendar/lang/calendar-<?= substr($sLanguage, 0, 2) ?>.js"></script>
-
   <script language="javascript" type="text/javascript">
     window.CRM = {root: "<?= $sRootPath ?>"};
 
-    // Popup Calendar stuff
-    function selected(cal, date) {
-      cal.sel.value = date; // update the date in the input field.
-      if (cal.dateClicked)
-        cal.callCloseHandler();
-    }
-
-    function closeHandler(cal) {
-      cal.hide(); // hide the calendar
-    }
-
-    function showCalendar(id, format) {
-      var el = document.getElementById(id);
-      if (calendar != null) {
-        calendar.hide();
-      }
-      else {
-        var cal = new Calendar(false, null, selected, closeHandler);
-        cal.weekNumbers = false;
-        calendar = cal;                  // remember it in the global var
-        cal.setRange(1900, 2070);        // min/max year allowed.
-        cal.create();
-      }
-      calendar.setDateFormat(format);    // set the specified date format
-      calendar.parseDate(el.value);      // try to parse the text in field
-      calendar.sel = el;                 // inform it what input field we use
-      calendar.showAtElement(el);        // show the calendar below it
-      return false;
-    }
-
-    var MINUTE = 60 * 1000;
-    var HOUR = 60 * MINUTE;
-    var DAY = 24 * HOUR;
-    var WEEK = 7 * DAY;
-
-    function isDisabled(date) {
-      var today = new Date();
-      return (Math.abs(date.getTime() - today.getTime()) / DAY) > 10;
-    }
-
-    // Clear a field on the first focus
-    var priorSelect = new Array();
-    function ClearFieldOnce(sField) {
-      if (priorSelect[sField.id]) {
-        sField.select();
-      } else {
-        sField.value = "";
-        priorSelect[sField.id] = true;
-      }
-    }
-
-    function LimitTextSize(theTextArea, size) {
+  function LimitTextSize(theTextArea, size) {
       if (theTextArea.value.length > size) {
         theTextArea.value = theTextArea.value.substr(0, size);
       }
-    }
-
-    function popUp(URL) {
-      day = new Date();
-      id = day.getTime();
-      eval("page" + id + " = window.open(URL, '" + id + "', 'toolbar=0,scrollbars=yes,location=0,statusbar=0,menubar=0,resizable=yes,width=600,height=400,left = 100,top = 50');");
     }
 
   </script>
@@ -449,82 +389,6 @@ if ($aMenu['name'] == "deposit") {
           </div>
         </div>
       <?php }
-      }
-
-      function create_side_nav($menu)
-      {
-
-        echo "<p>";
-        addSection($menu);
-        echo "</p>\n";
-      }
-
-      function addSection($menu)
-      {
-        global $cnInfoCentral;
-
-        $security_matrix = " AND (security_grp = 'bALL'";
-        if ($_SESSION['bAdmin']) {
-          $security_matrix .= " OR security_grp = 'bAdmin'";
-        }
-        if ($_SESSION['bAddRecords']) {
-          $security_matrix .= " OR security_grp = 'bAddRecords'";
-        }
-        if ($_SESSION['bMenuOptions']) {
-          $security_matrix .= " OR security_grp = 'bMenuOptions'";
-        }
-        if ($_SESSION['bFinance']) {
-          $security_matrix .= " OR security_grp = 'bFinance'";
-        }
-        if ($_SESSION['bManageGroups']) {
-          $security_matrix .= " OR security_grp = 'bManageGroups'";
-        }
-        $security_matrix .= ")";
-        $query = "SELECT name, ismenu, content, uri, statustext, session_var, session_var_in_text, session_var_in_uri, url_parm_name, security_grp FROM menuconfig_mcf WHERE parent = '$menu' AND active=1 " . $security_matrix . " ORDER BY sortorder";
-
-        $rsMenu = mysql_query($query, $cnInfoCentral);
-        $item_cnt = mysql_num_rows($rsMenu);
-        $ptr = 1;
-        while ($aRow = mysql_fetch_array($rsMenu)) {
-          if (isset($aRow['admin_only']) & !$_SESSION['bAdmin']) {
-            // hide admin menu
-          } else {
-            addEntry($aRow);
-          }
-          $ptr++;
-        }
-      }
-
-      function addEntry($aMenu)
-      {
-        global $sRootPath;
-
-        $link = ($aMenu['uri'] == "") ? "" : $sRootPath . "/" . $aMenu['uri'];
-        $text = $aMenu['statustext'];
-        $content = $aMenu['content'];
-        if (!is_null($aMenu['session_var'])) {
-          if (($link > "") && ($aMenu['session_var_in_uri']) && isset($_SESSION[$aMenu['session_var']])) {
-            $link .= "?" . $aMenu['url_parm_name'] . "=" . $_SESSION[$aMenu['session_var']];
-          }
-          if (($text > "") && ($aMenu['session_var_in_text']) && isset($_SESSION[$aMenu['session_var']])) {
-            $text .= " " . $_SESSION[$aMenu['session_var']];
-          }
-        }
-        if (substr($content, 1, 10) == '----------') {
-          $content = "--------------------";
-        }
-        if ($aMenu['ismenu']) {
-          echo "</p>\n<p>\n";
-        }
-        if ($link > "") {
-          echo "<a class=\"SmallText\" href=\"" . $link . "\">" . $content . "</a>";
-        } else {
-          echo $content;
-        }
-        echo "<br>\n";
-        if ($aMenu['ismenu']) {
-          addSection($aMenu['name']);
-        }
       }
 
       ?>
